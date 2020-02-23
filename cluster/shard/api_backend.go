@@ -61,13 +61,13 @@ func (s *ShardBackend) GenTx(genTxs rpc.GenTxRequest) error {
 	for allTxNumber > 0 {
 		pendingCnt := s.MinorBlockChain.GetPendingCount()
 		log.Info(s.logInfo, "last tx to add", allTxNumber, "pendingCnt", pendingCnt)
-		if pendingCnt >= 36000 {
+		if pendingCnt >= 200000 {
 			time.Sleep(2 * time.Second)
 			continue
 		}
 		genTxs.NumTxPerShard = allTxNumber
-		if allTxNumber > 12000 {
-			genTxs.NumTxPerShard = 12000
+		if allTxNumber > 200000 {
+			genTxs.NumTxPerShard = 200000
 		}
 
 		if err := s.genTx(genTxs); err != nil {

@@ -93,7 +93,7 @@ func (t *TxGenerator) sign(evmTx *types.EvmTransaction, key *ecdsa.PrivateKey) (
 func (t *TxGenerator) Generate(genTxs rpc.GenTxRequest, addTxList func(txs []*types.Transaction) error) error {
 	tsa := time.Now()
 	var (
-		batchScale    = 4000
+		batchScale    = 200000
 		txList        = make([]*types.Transaction, batchScale)
 		numTx         = genTxs.NumTxPerShard
 		xShardPercent = int(genTxs.XShardPercent)
