@@ -110,7 +110,7 @@
   },
   "SLAVE_LIST": [
     {
-      "HOST": "172.31.19.219",
+      "HOST": "172.31.3.44",
       "PORT": 38000,
       "ID": "S0",
       "CHAIN_MASK_LIST": [
