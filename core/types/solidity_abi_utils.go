@@ -4,13 +4,14 @@ import (
 	"encoding/hex"
 	"errors"
 	"fmt"
-	"github.com/QuarkChain/goquarkchain/account"
-	"github.com/ethereum/go-ethereum/common"
-	"github.com/ethereum/go-ethereum/common/hexutil"
 	"math/big"
 	"regexp"
 	"strconv"
 	"strings"
+
+	"github.com/QuarkChain/goquarkchain/account"
+	"github.com/ethereum/go-ethereum/common"
+	"github.com/ethereum/go-ethereum/common/hexutil"
 )
 
 func bigIntToHex(data *big.Int) string {
@@ -49,17 +50,17 @@ func evmTxToTypedData(evmTx *EvmTransaction) []map[string]string {
 	typedTxData = append(typedTxData, map[string]string{
 		"type":  "uint256",
 		"name":  "nonce",
-		"value": uint64ToHex(evmTx.data.AccountNonce),
+		"value": uint64ToHex(evmTx.TxData.AccountNonce),
 	})
 	typedTxData = append(typedTxData, map[string]string{
 		"type":  "uint256",
 		"name":  "gasPrice",
-		"value": bigIntToHex(evmTx.data.Price),
+		"value": bigIntToHex(evmTx.TxData.Price),
 	})
 	typedTxData = append(typedTxData, map[string]string{
 		"type":  "uint256",
 		"name":  "gasLimit",
-		"value": uint64ToHex(evmTx.data.GasLimit),
+		"value": uint64ToHex(evmTx.TxData.GasLimit),
 	})
 	typedTxData = append(typedTxData, map[string]string{
 		"type":  "uint160",
@@ -69,37 +70,37 @@ func evmTxToTypedData(evmTx *EvmTransaction) []map[string]string {
 	typedTxData = append(typedTxData, map[string]string{
 		"type":  "uint256",
 		"name":  "value",
-		"value": bigIntToHex(evmTx.data.Amount),
+		"value": bigIntToHex(evmTx.TxData.Amount),
 	})
 	typedTxData = append(typedTxData, map[string]string{
 		"type":  "bytes",
 		"name":  "data",
-		"value": "0x" + hex.EncodeToString(evmTx.data.Payload),
+		"value": "0x" + hex.EncodeToString(evmTx.TxData.Payload),
 	})
 	typedTxData = append(typedTxData, map[string]string{
 		"type":  "uint256",
 		"name":  "networkId",
-		"value": uint32ToHex(evmTx.data.NetworkId),
+		"value": uint32ToHex(evmTx.TxData.NetworkId),
 	})
 	typedTxData = append(typedTxData, map[string]string{
 		"type":  "uint32",
 		"name":  "fromFullShardKey",
-		"value": uint32ToHex(evmTx.data.FromFullShardKey.GetValue()),
+		"value": uint32ToHex(evmTx.TxData.FromFullShardKey.GetValue()),
 	})
 	typedTxData = append(typedTxData, map[string]string{
 		"type":  "uint32",
 		"name":  "toFullShardKey",
-		"value": uint32ToHex(evmTx.data.ToFullShardKey.GetValue()),
+		"value": uint32ToHex(evmTx.TxData.ToFullShardKey.GetValue()),
 	})
 	typedTxData = append(typedTxData, map[string]string{
 		"type":  "uint64",
 		"name":  "gasTokenId",
-		"value": uint64ToHex(evmTx.data.GasTokenID),
+		"value": uint64ToHex(evmTx.TxData.GasTokenID),
 	})
 	typedTxData = append(typedTxData, map[string]string{
 		"type":  "uint64",
 		"name":  "transferTokenId",
-		"value": uint64ToHex(evmTx.data.TransferTokenID),
+		"value": uint64ToHex(evmTx.TxData.TransferTokenID),
 	})
 	typedTxData = append(typedTxData, map[string]string{
 		"type":  "string",
