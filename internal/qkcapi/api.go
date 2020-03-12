@@ -55,19 +55,34 @@ func (c *CommonAPI) SendRawTransaction(encodedTx hexutil.Bytes) (hexutil.Bytes, 
 	if err := rlp.DecodeBytes(encodedTx, evmTx); err != nil {
 		return nil, err
 	}
+
+	// a := types.Uint32(65537)
+	// evmTx.TxData.FromFullShardKey = &a
+	// evmTx.TxData.ToFullShardKey = &a
+
+	fmt.Println("fromfullshardkey:", *evmTx.TxData.FromFullShardKey)
+
 	tx := &types.Transaction{
 		EvmTx:  evmTx,
 		TxType: types.EvmTx,
 	}
 
+	fmt.Println("NO1")
+
 	if err := c.b.AddTransaction(tx); err != nil {
 		return EmptyTxID, err
 	}
+
+	fmt.Println("tx:", *tx.EvmTx)
+
 	return encoder.IDEncoder(tx.Hash().Bytes(), tx.EvmTx.FromFullShardKey()), nil
 }
 
 func (c *CommonAPI) GetTransactionReceipt(txID hexutil.Bytes) (map[string]interface{}, error) {
 	txHash, fullShardKey, err := encoder.IDDecoder(txID)
+
+	// fullShardKey = uint32(65537)
+
 	if err != nil {
 		return nil, err
 	}
@@ -201,6 +216,9 @@ func (p *PublicBlockChainAPI) GetBalances(address account.Address, blockNr *rpc.
 
 func (p *PublicBlockChainAPI) GetAccountData(address account.Address, blockHeight *rpc.BlockNumber, includeShards *bool) (map[string]interface{}, error) {
 	blockNr := blockHeight
+
+	// address.FullShardKey = uint32(65537)
+
 	if includeShards != nil && blockNr != nil {
 		return nil, errors.New("do not allow specify height if client wants info on all shards")
 	}
