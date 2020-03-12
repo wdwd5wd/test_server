@@ -604,6 +604,7 @@ type CrossShardTransactionDeposit struct {
 	GasRemained     *serialize.Uint256
 	MessageData     []byte `bytesizeofslicelen:"4"`
 	CreateContract  bool
+	Nonce           uint64
 }
 
 type CrossShardTransactionDepositList struct {
