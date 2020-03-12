@@ -5,6 +5,11 @@ import (
 	"encoding/binary"
 	"errors"
 	"fmt"
+	"math/big"
+	"net"
+	"reflect"
+	"strings"
+
 	"github.com/QuarkChain/goquarkchain/account"
 	"github.com/QuarkChain/goquarkchain/cluster/rpc"
 	"github.com/QuarkChain/goquarkchain/consensus"
@@ -16,10 +21,6 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/common/hexutil"
 	"golang.org/x/sync/errgroup"
-	"math/big"
-	"net"
-	"reflect"
-	"strings"
 )
 
 func ip2uint32(ip string) uint32 {
@@ -58,10 +59,16 @@ func (s *QKCMasterBackend) AddTransaction(tx *types.Transaction) error {
 	if err != nil {
 		return err
 	}
+
+	fmt.Println("from shard size:", fromShardSize)
+
 	if err := tx.EvmTx.SetFromShardSize(fromShardSize); err != nil {
 		return errors.New(fmt.Sprintf("Failed to set fromShardSize, fromShardSize: %d, err: %v", fromShardSize, err))
 	}
 	fullShardId := evmTx.FromFullShardId()
+
+	fmt.Println("full shard ID:", fullShardId)
+
 	slaves := s.GetSlaveConnsById(fullShardId)
 	if len(slaves) == 0 {
 		return ErrNoBranchConn
@@ -70,6 +77,9 @@ func (s *QKCMasterBackend) AddTransaction(tx *types.Transaction) error {
 	for index := range slaves {
 		i := index
 		g.Go(func() error {
+
+			fmt.Println("it's me, slave", i)
+
 			return slaves[i].AddTransaction(tx)
 		})
 	}

@@ -214,6 +214,7 @@ func (m *MinorBlockChain) validateTx(tx *types.Transaction, evmState *state.Stat
 	}
 	var sender account.Recipient
 	if fromAddress == nil {
+		// 可能是得到from地址的方式？
 		sender, err = tx.Sender(types.NewEIP155Signer(m.clusterConfig.Quarkchain.NetworkID))
 		if err != nil {
 			return nil, err
@@ -671,6 +672,9 @@ func (m *MinorBlockChain) GetUnconfirmedHeadersCoinbaseAmount() uint64 {
 func (m *MinorBlockChain) addTransactionToBlock(block *types.MinorBlock, evmState *state.StateDB) (*types.MinorBlock, types.Receipts, error) {
 	// have locked by upper call
 	pending, err := m.txPool.Pending() // txpool already locked
+
+	fmt.Println("pending txs:", pending)
+
 	if err != nil {
 		return nil, nil, err
 	}

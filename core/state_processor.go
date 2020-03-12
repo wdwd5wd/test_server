@@ -100,6 +100,7 @@ func (p *StateProcessor) Process(block *types.MinorBlock, statedb *state.StateDB
 func ValidateTransaction(state vm.StateDB, tx *types.Transaction, fromAddress *account.Address) error {
 	from := new(account.Recipient)
 	if fromAddress == nil {
+		// 也是得到from地址的方式？
 		tempFrom, err := tx.Sender(types.MakeSigner(tx.EvmTx.NetworkId()))
 		if err != nil {
 			return err
@@ -113,6 +114,12 @@ func ValidateTransaction(state vm.StateDB, tx *types.Transaction, fromAddress *a
 	if bytes.Equal(from.Bytes(), account.Recipient{}.Bytes()) {
 		reqNonce = 0
 	}
+
+	// //让migTX忽视nonce要求 &&
+	// if *from == *tx.EvmTx.TxData.Recipient {
+	// 	tx.EvmTx.TxData.AccountNonce = reqNonce
+	// }
+
 	if reqNonce > tx.EvmTx.Nonce() {
 		return ErrNonceTooLow
 	}
@@ -165,6 +172,7 @@ func ApplyTransaction(config *params.ChainConfig, bc ChainContext, gp *GasPool, 
 	if err != nil {
 		return nil, nil, 0, err
 	}
+
 	context := NewEVMContext(msg, header, bc)
 	vmenv := vm.NewEVM(context, statedb, config, cfg)
 

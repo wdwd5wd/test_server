@@ -290,6 +290,7 @@ func (st *StateTransition) preFill() {
 	st.initialGas = st.gas
 }
 
+// 可能跟cross shard设置nonce有关？
 func (st *StateTransition) AddCrossShardTxDeposit(intrinsicGas uint64) (ret []byte, usedGas uint64,
 	failed bool, err error) {
 

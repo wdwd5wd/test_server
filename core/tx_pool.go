@@ -912,6 +912,9 @@ func (pool *TxPool) runReorg(done chan struct{}, reset *txpoolResetRequest, dirt
 		for _, set := range events {
 			txs = append(txs, set.Flatten()...)
 		}
+
+		fmt.Println("txs been sent:", txs)
+
 		pool.txFeed.Send(NewTxsEvent{txs})
 	}
 }
@@ -1039,6 +1042,7 @@ func (pool *TxPool) promoteExecutables(accounts []common.Address) []*types.Trans
 		if list == nil {
 			continue // Just in case someone calls with a non existing account
 		}
+
 		// Drop all transactions that are deemed too old (low nonce)
 		forwards := list.Forward(pool.currentState.GetNonce(addr))
 		for _, tx := range forwards {
@@ -1046,6 +1050,7 @@ func (pool *TxPool) promoteExecutables(accounts []common.Address) []*types.Trans
 			pool.all.Remove(hash)
 			log.Trace("Removed old queued transaction", "hash", hash)
 		}
+
 		// Drop all transactions that are too costly (low balance or out of gas)
 		drops, _ := list.Filter(pool.currentState.GetBalance(addr, pool.chain.Config().GetDefaultChainTokenID()), pool.currentMaxGas)
 		for _, tx := range drops {
@@ -1082,6 +1087,8 @@ func (pool *TxPool) promoteExecutables(accounts []common.Address) []*types.Trans
 			delete(pool.queue, addr)
 		}
 	}
+
+	fmt.Println("promoted txs:", promoted)
 	return promoted
 }
 
@@ -1223,6 +1230,7 @@ func (pool *TxPool) demoteUnexecutables() {
 			pool.all.Remove(hash)
 			log.Trace("Removed old pending transaction", "hash", hash)
 		}
+
 		// Drop all transactions that are too costly (low balance or out of gas), and queue any invalids back for later
 		drops, invalids := list.Filter(pool.currentState.GetBalance(addr, pool.chain.Config().GetDefaultChainTokenID()), pool.currentMaxGas)
 		for _, tx := range drops {
