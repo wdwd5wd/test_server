@@ -241,9 +241,21 @@ func ApplyCrossShardDeposit(config *params.ChainConfig, bc ChainContext, header 
 
 	evmState.SetFullShardKey(tx.To.FullShardKey)
 	evmState.AddBalance(tx.From.Recipient, tx.Value.Value, tx.TransferTokenID)
+
 	msg := types.NewMessage(tx.From.Recipient, &tx.To.Recipient, 0, tx.Value.Value,
 		tx.GasRemained.Value.Uint64(), tx.GasPrice.Value, tx.MessageData, false,
 		tx.From.FullShardKey, &tx.To.FullShardKey, tx.TransferTokenID, tx.GasTokenID)
+
+	//如果是migration TX，则在目标shard上设置nonce
+	if tx.From.Recipient == tx.To.Recipient && tx.IsFromRootChain == false {
+		// fmt.Println("这是个migTX,接下来要设置nonce了")
+		evmState.SetNonce(tx.From.Recipient, tx.Nonce+1)
+
+		msg = types.NewMessage(tx.From.Recipient, &tx.To.Recipient, tx.Nonce+1, tx.Value.Value,
+			tx.GasRemained.Value.Uint64(), tx.GasPrice.Value, tx.MessageData, false,
+			tx.From.FullShardKey, &tx.To.FullShardKey, tx.TransferTokenID, tx.GasTokenID)
+	}
+
 	context := NewEVMContext(msg, header, bc)
 	context.IsApplyXShard = true
 	context.XShardGasUsedStart = gasUsedStart
