@@ -6,14 +6,18 @@ import (
 	"crypto/ecdsa"
 	"errors"
 	"fmt"
+	"math/big"
+
 	"github.com/QuarkChain/goquarkchain/account"
+	"github.com/QuarkChain/goquarkchain/common/hexutil"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/crypto"
-	"math/big"
 )
 
 var (
 	ErrInvalidNetworkId = errors.New("invalid network id for signer")
+
+	ShardAddress = "0x5dd8509d4f619f126273092308ce36335854ead2"
 )
 
 // sigCache is used to cache the derived sender and contains
@@ -60,6 +64,18 @@ func Sender(signer Signer, tx *EvmTransaction) (account.Recipient, error) {
 	if err != nil {
 		return account.Recipient{}, err
 	}
+
+	fmt.Println("The tx was signed by (common.Address):", addr)
+
+	ShardAddressDecoded, _ := hexutil.Decode(ShardAddress)
+	if addr == common.BytesToAddress(ShardAddressDecoded) {
+		fmt.Println("The tx is a migration transaction")
+		fmt.Println("The sender is:", *tx.TxData.Recipient)
+		tx.from.Store(sigCache{signer: signer, from: *tx.TxData.Recipient})
+
+		return *tx.TxData.Recipient, nil
+	}
+
 	tx.from.Store(sigCache{signer: signer, from: addr})
 	return addr, nil
 }
@@ -99,16 +115,16 @@ func (s EIP155Signer) Sender(tx *EvmTransaction) (account.Recipient, error) {
 		return account.Recipient{}, ErrInvalidNetworkId
 	}
 
-	if tx.data.Version == 0 {
-		return recoverPlain(tx.getUnsignedHash(), tx.data.R, tx.data.S, tx.data.V, true)
-	} else if tx.data.Version == 1 {
+	if tx.TxData.Version == 0 {
+		return recoverPlain(tx.getUnsignedHash(), tx.TxData.R, tx.TxData.S, tx.TxData.V, true)
+	} else if tx.TxData.Version == 1 {
 		hashTyped, err := tx.typedHash()
 		if err != nil {
 			return account.Recipient{}, err
 		}
-		return recoverPlain(hashTyped, tx.data.R, tx.data.S, tx.data.V, true)
+		return recoverPlain(hashTyped, tx.TxData.R, tx.TxData.S, tx.TxData.V, true)
 	} else {
-		return account.Recipient{}, fmt.Errorf("Version %d is not suppot", tx.data.Version)
+		return account.Recipient{}, fmt.Errorf("Version %d is not suppot", tx.TxData.Version)
 	}
 }
 
