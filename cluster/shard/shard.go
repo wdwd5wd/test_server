@@ -3,10 +3,11 @@ package shard
 import (
 	"errors"
 	"fmt"
-	"github.com/QuarkChain/goquarkchain/account"
-	"github.com/QuarkChain/goquarkchain/consensus/simulate"
 	"math/big"
 	"sync"
+
+	"github.com/QuarkChain/goquarkchain/account"
+	"github.com/QuarkChain/goquarkchain/consensus/simulate"
 
 	"github.com/QuarkChain/goquarkchain/cluster/config"
 	"github.com/QuarkChain/goquarkchain/cluster/miner"
