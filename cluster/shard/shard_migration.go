@@ -6,10 +6,16 @@ import (
 	"github.com/ethereum/go-ethereum/log"
 )
 
-func (m *MinorBlockChain) MigrateAccountToOtherShard(account common.Address) error {
+func (s *ShardBackend) MigrateAccountToOtherShard(account common.Address) error {
 	log.Debug("Migrate", "account", account)
-	txs := m.txPool.popAccountTranscations(account)
+	txs := s.MinorBlockChain.txPool.popAccountTranscations(account)
 	log.Debug("Transcations poped from pool", "size", len(txs))
+
+	if s.miner.IsMining() {
+		log.Debug("Restart mining")
+		s.miner.SetMining(false)
+		s.miner.SetMining(true)
+	}
 
 	// TODO: send transcations to master?
 
