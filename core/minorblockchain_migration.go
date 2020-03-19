@@ -20,6 +20,7 @@ func (m *MinorBlockChain) PopAccountTranscations(account common.Address) types.T
 		log.Debug("found pending txs", "size", pending.Len())
 		for _, tx := range pending.txs.items {
 			txs.Put(tx)
+			m.txPool.all.Remove(tx.Hash())
 		}
 		delete(m.txPool.pending, account)
 	}
@@ -28,6 +29,7 @@ func (m *MinorBlockChain) PopAccountTranscations(account common.Address) types.T
 		log.Debug("found queued txs", "size", queued.Len())
 		for _, tx := range queued.txs.items {
 			txs.Put(tx)
+			m.txPool.all.Remove(tx.Hash())
 		}
 		delete(m.txPool.queue, account)
 	}
