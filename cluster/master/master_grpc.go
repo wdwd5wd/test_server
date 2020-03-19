@@ -2,9 +2,12 @@ package master
 
 import (
 	"context"
-	"github.com/QuarkChain/goquarkchain/cluster/rpc"
-	"github.com/QuarkChain/goquarkchain/serialize"
 	"sync"
+
+	"github.com/QuarkChain/goquarkchain/cluster/rpc"
+	"github.com/QuarkChain/goquarkchain/p2p"
+	"github.com/QuarkChain/goquarkchain/serialize"
+	"github.com/ethereum/go-ethereum/log"
 )
 
 type MasterServerSideOp struct {
@@ -73,6 +76,28 @@ func (m *MasterServerSideOp) BroadcastTransactions(ctx context.Context, req *rpc
 	if err := serialize.DeserializeFromBytes(req.Data, broadcastTxsReq); err != nil {
 		return nil, err
 	}
+
+	log.Debug("MasterServerSideOp.BroadcastTransactions()", "peerID", broadcastTxsReq.PeerID)
+	if broadcastTxsReq.PeerID == "!MIGRATION!" {
+		// Hacking: send transcations to local slave
+		var newTxs p2p.NewTransactionList
+		if err := serialize.DeserializeFromBytes(broadcastTxsReq.Data, &newTxs); err != nil {
+			log.Warn("fail to decode txs", "err", err)
+		}
+		log.Debug("TransactionList", "len", len(newTxs.TransactionList))
+		for _, tx := range newTxs.TransactionList {
+			fullShardId := tx.EvmTx.FromFullShardId()
+
+			slave := m.master.SlaveConnManager.GetOneSlaveConnById(fullShardId)
+			if slave == nil {
+				log.Warn("No slave connection found")
+			} else {
+				log.Debug("AddTranscation", "shard", fullShardId, "nonce", tx.EvmTx.Nonce())
+				slave.AddTransaction(tx)
+			}
+		}
+	}
+
 	m.p2pApi.BroadcastTransactions(broadcastTxsReq, broadcastTxsReq.PeerID)
 	return &rpc.Response{
 		RpcId: req.RpcId,

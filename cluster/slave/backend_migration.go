@@ -27,7 +27,7 @@ func (s *SlaveBackend) MigrateAccountToOtherShard(account common.Address,
 	}
 
 	// Boradcast txs
-	err := s.connManager.BroadcastTransactions("", toShardKey, txs)
+	err := s.connManager.BroadcastTransactions("!MIGRATION!", toShardKey, txs)
 	if err != nil {
 		log.Warn("fail to broadcast migrated txs")
 		return err
