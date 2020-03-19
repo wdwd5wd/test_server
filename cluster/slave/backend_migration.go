@@ -21,7 +21,7 @@ func (s *SlaveBackend) MigrateAccountToOtherShard(account common.Address,
 	txs := fromShard.PopAccountTranscations(account)
 
 	// Set new FromFullShardKey
-	newFromFullShardKey := types.Uint32(fromShardKey)
+	newFromFullShardKey := types.Uint32(toShardKey)
 	for _, tx := range txs {
 		tx.EvmTx.TxData.FromFullShardKey = &newFromFullShardKey
 	}
