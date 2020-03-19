@@ -142,18 +142,37 @@ func (s *SlaveBackend) AddTx(tx *types.Transaction) (err error) {
 	}
 	fromShardSize, err := s.clstrCfg.Quarkchain.GetShardSizeByChainId(tx.EvmTx.FromChainID())
 
-	log.Debug("AddTx(), toShardSize", toShardSize, "fromShardSize", fromShardSize)
-
 	if err != nil {
 		return err
 	}
 	if err := tx.EvmTx.SetFromShardSize(fromShardSize); err != nil {
 		return err
 	}
+	println("AddTx()", "nonce", tx.EvmTx.Nonce(), "from shard", tx.EvmTx.FromFullShardId())
+
 	if shard, ok := s.shards[tx.EvmTx.FromFullShardId()]; ok {
-		return shard.MinorBlockChain.AddTx(tx)
+		shard.MinorBlockChain.AddTx(tx)
+		// TODO: change back to `return shard.MinorBlockChain.AddTx(tx)`
+	} else {
+		return ErrMsg("AddTx")
 	}
-	return ErrMsg("AddTx")
+
+	// TODO: REMOVE THE TEST CODE BELOW
+	if tx.EvmTx.Nonce() == 19 && tx.EvmTx.FromFullShardId() == 1 {
+		fromShard := tx.EvmTx.FromFullShardKey()
+		toShard := uint32(0x00010001)
+		signer := types.MakeSigner(uint32(3))
+		sender, _ := tx.Sender(signer)
+		fmt.Println("Migrate", sender, "from shard", fromShard, "to", toShard)
+		err := s.MigrateAccountToOtherShard(sender, fromShard, toShard)
+		if err != nil {
+			println("Fail to migrate:", err)
+		} else {
+			println("Account migrated")
+		}
+	}
+
+	return nil
 }
 
 func (s *SlaveBackend) AddTxList(peerID string, branch uint32, txs []*types.Transaction) error {
