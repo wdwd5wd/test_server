@@ -131,6 +131,7 @@ func (s *SlaveBackend) AddBlockListForSync(mHashList []common.Hash, peerId strin
 	return shard.MinorBlockChain.GetShardStats()
 }
 
+// AddTx add txs and do account migration & queued tx migration if needed
 func (s *SlaveBackend) AddTx(tx *types.Transaction) (err error) {
 	toShardSize, err := s.clstrCfg.Quarkchain.GetShardSizeByChainId(tx.EvmTx.ToChainID())
 
@@ -148,21 +149,15 @@ func (s *SlaveBackend) AddTx(tx *types.Transaction) (err error) {
 	if err := tx.EvmTx.SetFromShardSize(fromShardSize); err != nil {
 		return err
 	}
-	println("AddTx()", "nonce", tx.EvmTx.Nonce(), "from shard", tx.EvmTx.FromFullShardId())
 
-	if shard, ok := s.shards[tx.EvmTx.FromFullShardId()]; ok {
-		shard.MinorBlockChain.AddTx(tx)
-		// TODO: change back to `return shard.MinorBlockChain.AddTx(tx)`
-	} else {
-		return ErrMsg("AddTx")
-	}
+	// println("AddTx()", "nonce", tx.EvmTx.Nonce(), "from shard", tx.EvmTx.FromFullShardId())
 
-	// TODO: REMOVE THE TEST CODE BELOW
-	if tx.EvmTx.Nonce() == 19 && tx.EvmTx.FromFullShardId() == 1 {
+	signer := types.MakeSigner(uint32(3))
+	sender, _ := tx.Sender(signer)
+
+	if sender == *tx.EvmTx.TxData.Recipient {
 		fromShard := tx.EvmTx.FromFullShardKey()
-		toShard := uint32(0x00010001)
-		signer := types.MakeSigner(uint32(3))
-		sender, _ := tx.Sender(signer)
+		toShard := tx.EvmTx.ToFullShardKey()
 		fmt.Println("Migrate", sender, "from shard", fromShard, "to", toShard)
 		err := s.MigrateAccountToOtherShard(sender, fromShard, toShard)
 		if err != nil {
@@ -171,6 +166,31 @@ func (s *SlaveBackend) AddTx(tx *types.Transaction) (err error) {
 			println("Account migrated")
 		}
 	}
+
+	if shard, ok := s.shards[tx.EvmTx.FromFullShardId()]; ok {
+		shard.MinorBlockChain.AddTx(tx)
+		// TODO: change back to `return shard.MinorBlockChain.AddTx(tx)`
+		if sender == *tx.EvmTx.TxData.Recipient {
+			println("Added account migration tx")
+		}
+	} else {
+		return ErrMsg("AddTx")
+	}
+
+	// // TODO: REMOVE THE TEST CODE BELOW
+	// if tx.EvmTx.Nonce() == 19 && tx.EvmTx.FromFullShardId() == 1 {
+	// 	fromShard := tx.EvmTx.FromFullShardKey()
+	// 	toShard := uint32(0x00010001)
+	// 	signer := types.MakeSigner(uint32(3))
+	// 	sender, _ := tx.Sender(signer)
+	// 	fmt.Println("Migrate", sender, "from shard", fromShard, "to", toShard)
+	// 	err := s.MigrateAccountToOtherShard(sender, fromShard, toShard)
+	// 	if err != nil {
+	// 		println("Fail to migrate:", err)
+	// 	} else {
+	// 		println("Account migrated")
+	// 	}
+	// }
 
 	return nil
 }
