@@ -93,7 +93,7 @@ func (m *MasterServerSideOp) BroadcastTransactions(ctx context.Context, req *rpc
 				log.Warn("No slave connection found")
 			} else {
 				log.Debug("AddTranscation", "shard", fullShardId, "nonce", tx.EvmTx.Nonce())
-				slave.AddTransaction(tx)
+				go slave.AddTransaction(tx)
 			}
 		}
 	}
