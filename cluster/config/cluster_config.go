@@ -258,10 +258,11 @@ func (q *QuarkChainConfig) Update(chainSize, shardSizePerChain, rootBlockTime, m
 
 func (q *QuarkChainConfig) initAndValidate() {
 	if q.MinMiningGasPrice == nil {
-		q.MinMiningGasPrice = new(big.Int).SetUint64(1000000000)
+		// q.MinMiningGasPrice = new(big.Int).SetUint64(1000000000)
+		q.MinMiningGasPrice = new(big.Int).SetUint64(1)
 	}
 	if q.MinTXPoolGasPrice == nil {
-		q.MinTXPoolGasPrice = new(big.Int).SetUint64(1000000000)
+		q.MinTXPoolGasPrice = new(big.Int).SetUint64(1)
 	}
 	if q.XShardGasDDOSFixRootHeight == 0 {
 		q.XShardGasDDOSFixRootHeight = 90000
@@ -372,8 +373,8 @@ func NewQuarkChainConfig() *QuarkChainConfig {
 		RewardTaxRate:                     new(big.Rat).SetFloat64(0.5),
 		BlockRewardDecayFactor:            new(big.Rat).SetFloat64(0.5),
 		Root:                              NewRootConfig(),
-		MinTXPoolGasPrice:                 new(big.Int).SetUint64(1000000000),
-		MinMiningGasPrice:                 new(big.Int).SetUint64(1000000000),
+		MinTXPoolGasPrice:                 new(big.Int).SetUint64(1),
+		MinMiningGasPrice:                 new(big.Int).SetUint64(1),
 		XShardGasDDOSFixRootHeight:        90000,
 		GRPCHost:                          grpchost,
 		GRPCPort:                          DefaultGrpcPort,
