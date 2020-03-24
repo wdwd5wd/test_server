@@ -129,10 +129,15 @@ var DefaultTxPoolConfig = TxPoolConfig{
 	PriceLimit: 1,
 	PriceBump:  10,
 
-	AccountSlots: 16,
-	GlobalSlots:  281920,
-	AccountQueue: 64,
-	GlobalQueue:  1024,
+	// AccountSlots: 16,
+	// GlobalSlots:  81920,
+	// AccountQueue: 64,
+	// GlobalQueue:  1024,
+
+	AccountSlots: 200000,
+	GlobalSlots:  200000,
+	AccountQueue: 200000,
+	GlobalQueue:  200000,
 
 	Lifetime:  3 * time.Hour,
 	NetWorkID: 3,
@@ -913,7 +918,7 @@ func (pool *TxPool) runReorg(done chan struct{}, reset *txpoolResetRequest, dirt
 			txs = append(txs, set.Flatten()...)
 		}
 
-		fmt.Println("txs been sent:", txs)
+		// fmt.Println("txs been sent:", txs)
 
 		pool.txFeed.Send(NewTxsEvent{txs})
 	}
@@ -1088,7 +1093,8 @@ func (pool *TxPool) promoteExecutables(accounts []common.Address) []*types.Trans
 		}
 	}
 
-	fmt.Println("promoted txs:", promoted)
+	// fmt.Println("promoted txs:", promoted)
+
 	return promoted
 }
 
