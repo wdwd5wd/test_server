@@ -13,11 +13,12 @@ func (s *ShardBackend) PopAccountTranscations(account common.Address) types.Tran
 	txs := s.MinorBlockChain.PopAccountTranscations(account)
 	log.Debug("Transcations poped from pool", "size", len(txs))
 
-	// Restart mining
-	if s.miner.IsMining() {
-		log.Debug("Restart mining")
-		s.miner.SetMining(false)
-		s.miner.SetMining(true)
-	}
+	// // Restart mining
+	// if s.miner.IsMining() {
+	// 	log.Debug("Restart mining")
+	// 	s.miner.SetMining(false)
+	// 	s.miner.SetMining(true)
+	// }
+
 	return txs
 }
