@@ -65,7 +65,7 @@ func Sender(signer Signer, tx *EvmTransaction) (account.Recipient, error) {
 		return account.Recipient{}, err
 	}
 
-	fmt.Println("The tx was signed by (common.Address):", addr)
+	// fmt.Println("The tx was signed by (common.Address):", addr)
 
 	ShardAddressDecoded, _ := hexutil.Decode(ShardAddress)
 	if addr == common.BytesToAddress(ShardAddressDecoded) {

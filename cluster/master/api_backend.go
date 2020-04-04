@@ -60,14 +60,14 @@ func (s *QKCMasterBackend) AddTransaction(tx *types.Transaction) error {
 		return err
 	}
 
-	fmt.Println("from shard size:", fromShardSize)
+	// fmt.Println("from shard size:", fromShardSize)
 
 	if err := tx.EvmTx.SetFromShardSize(fromShardSize); err != nil {
 		return errors.New(fmt.Sprintf("Failed to set fromShardSize, fromShardSize: %d, err: %v", fromShardSize, err))
 	}
 	fullShardId := evmTx.FromFullShardId()
 
-	fmt.Println("full shard ID:", fullShardId)
+	// fmt.Println("full shard ID:", fullShardId)
 
 	slaves := s.GetSlaveConnsById(fullShardId)
 	if len(slaves) == 0 {
@@ -78,7 +78,7 @@ func (s *QKCMasterBackend) AddTransaction(tx *types.Transaction) error {
 		i := index
 		g.Go(func() error {
 
-			fmt.Println("it's me, slave", i)
+			// fmt.Println("it's me, slave", i)
 
 			return slaves[i].AddTransaction(tx)
 		})

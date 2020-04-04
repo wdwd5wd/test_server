@@ -60,20 +60,20 @@ func (c *CommonAPI) SendRawTransaction(encodedTx hexutil.Bytes) (hexutil.Bytes, 
 	// evmTx.TxData.FromFullShardKey = &a
 	// evmTx.TxData.ToFullShardKey = &a
 
-	fmt.Println("fromfullshardkey:", *evmTx.TxData.FromFullShardKey)
+	// fmt.Println("fromfullshardkey:", *evmTx.TxData.FromFullShardKey)
 
 	tx := &types.Transaction{
 		EvmTx:  evmTx,
 		TxType: types.EvmTx,
 	}
 
-	fmt.Println("NO1")
+	// fmt.Println("NO1")
 
 	if err := c.b.AddTransaction(tx); err != nil {
 		return EmptyTxID, err
 	}
 
-	fmt.Println("tx:", *tx.EvmTx)
+	// fmt.Println("tx:", *tx.EvmTx)
 
 	return encoder.IDEncoder(tx.Hash().Bytes(), tx.EvmTx.FromFullShardKey()), nil
 }

@@ -673,7 +673,7 @@ func (m *MinorBlockChain) addTransactionToBlock(block *types.MinorBlock, evmStat
 	// have locked by upper call
 	pending, err := m.txPool.Pending() // txpool already locked
 
-	fmt.Println("pending txs:", pending)
+	// fmt.Println("pending txs:", pending)
 
 	if err != nil {
 		return nil, nil, err
