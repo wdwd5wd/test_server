@@ -155,19 +155,17 @@ func (s *SlaveBackend) AddTx(tx *types.Transaction) (err error) {
 	signer := types.MakeSigner(uint32(3))
 	sender, _ := tx.Sender(signer)
 
-	if sender == *tx.EvmTx.TxData.Recipient {
-		fromShard := tx.EvmTx.FromFullShardKey()
-		toShard := tx.EvmTx.ToFullShardKey()
-		fmt.Println("Migrate", sender, "from shard", fromShard, "to", toShard)
-		err := s.MigrateAccountToOtherShard(sender, fromShard, toShard)
-		if err != nil {
-			println("Fail to migrate:", err)
-		} else {
-			println("Account migrated")
-		}
-	}
+	fromShard := tx.EvmTx.FromFullShardKey()
+	toShard := tx.EvmTx.ToFullShardKey()
 
 	if shard, ok := s.shards[tx.EvmTx.FromFullShardId()]; ok {
+
+		if sender != *tx.EvmTx.TxData.Recipient {
+
+			s.MigrationEnded(true, fromShard)
+
+		}
+
 		shard.MinorBlockChain.AddTx(tx)
 		// TODO: change back to `return shard.MinorBlockChain.AddTx(tx)`
 		if sender == *tx.EvmTx.TxData.Recipient {
@@ -175,6 +173,17 @@ func (s *SlaveBackend) AddTx(tx *types.Transaction) (err error) {
 		}
 	} else {
 		return ErrMsg("AddTx")
+	}
+
+	if sender == *tx.EvmTx.TxData.Recipient {
+
+		fmt.Println("Migrate", sender, "from shard", fromShard, "to", toShard)
+		err := s.MigrateAccountToOtherShard(sender, fromShard, toShard)
+		if err != nil {
+			println("Fail to migrate:", err)
+		} else {
+			println("Account migrated")
+		}
 	}
 
 	// // TODO: REMOVE THE TEST CODE BELOW
