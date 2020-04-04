@@ -1,6 +1,7 @@
 package miner
 
 import (
+	"fmt"
 	"math/big"
 	"runtime"
 	"sync"
@@ -68,14 +69,22 @@ func (m *Miner) interrupt() {
 	m.mu.Lock()
 	defer m.mu.Unlock()
 	if m.stopCh != nil {
+		log.Debug("Stop Channel not empty?!")
 		close(m.stopCh)
 		m.stopCh = make(chan struct{})
 	}
 }
 
 func (m *Miner) allowMining() bool {
+	// m.mu.Lock()
+	m.mu.RLock()
+	// defer m.mu.Unlock()
+	defer m.mu.RUnlock()
+
+	fmt.Println("allowMining, IsMining =", m.IsMining(), m.isMining, "time =", time.Now().Sub(*m.timestamp).Seconds())
 	if !m.IsMining() ||
 		time.Now().Sub(*m.timestamp).Seconds() > deadtime {
+		log.Error("IsMining is not true?", m.IsMining(), m.isMining, "time =", time.Now().Sub(*m.timestamp).Seconds())
 		return false
 	}
 	return true
@@ -113,8 +122,10 @@ func (m *Miner) commit(addr *account.Address) {
 func (m *Miner) mainLoop() {
 
 	for {
+		log.Debug(m.logInfo, "Miner.mainLoop(): select")
 		select {
 		case <-m.startCh:
+			log.Debug(m.logInfo, "Miner.mainLoop(): startCh")
 			m.commit(nil)
 
 		case work := <-m.workCh: //to discuss:need this?
@@ -135,6 +146,7 @@ func (m *Miner) mainLoop() {
 			}
 
 		case <-m.exitCh:
+			log.Debug(m.logInfo, "Miner.mainLoop(): exit")
 			return
 		}
 	}
@@ -149,12 +161,18 @@ func (m *Miner) Stop() {
 
 // TODO when p2p is syncing block how to stop miner.
 func (m *Miner) SetMining(mining bool) {
+	// m.mu.Lock()
+	// m.mu.RLock()
+
 	m.isMining = mining
 	if mining {
 		m.startCh <- struct{}{}
 	} else {
 		m.interrupt()
 	}
+
+	// m.mu.Unlock()
+	// m.mu.RUnlock()
 }
 
 func (m *Miner) GetWork(coinbaseAddr *account.Address) (*consensus.MiningWork, error) {
