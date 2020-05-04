@@ -6,6 +6,8 @@ import (
 	"math/big"
 	"sync"
 
+	"golang.org/x/sync/semaphore"
+
 	"github.com/QuarkChain/goquarkchain/account"
 	"github.com/QuarkChain/goquarkchain/consensus/simulate"
 
@@ -50,6 +52,7 @@ type ShardBackend struct {
 	conn  ConnManager
 
 	miner           *miner.Miner
+	minerSem        *semaphore.Weighted
 	MinorBlockChain *core.MinorBlockChain
 
 	mBPool      newBlockPool
@@ -119,6 +122,7 @@ func New(ctx *service.ServiceContext, rBlock *types.RootBlock, conn ConnManager,
 	shard.posw = consensus.CreatePoSWCalculator(shard.MinorBlockChain, shard.Config.PoswConfig)
 
 	shard.miner = miner.New(ctx, shard, shard.engine)
+	shard.minerSem = semaphore.NewWeighted(int64(-1))
 
 	return shard, nil
 }

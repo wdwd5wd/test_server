@@ -134,10 +134,10 @@ var DefaultTxPoolConfig = TxPoolConfig{
 	// AccountQueue: 64,
 	// GlobalQueue:  1024,
 
-	AccountSlots: 200000,
-	GlobalSlots:  200000,
-	AccountQueue: 200000,
-	GlobalQueue:  200000,
+	AccountSlots: 2000000,
+	GlobalSlots:  2000000,
+	AccountQueue: 2000000,
+	GlobalQueue:  2000000,
 
 	Lifetime:  3 * time.Hour,
 	NetWorkID: 3,

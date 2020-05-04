@@ -1,11 +1,13 @@
 package main
 
 import (
+	"encoding/csv"
 	"encoding/json"
 	"flag"
 	"fmt"
 	"math/big"
 	"net"
+	"os"
 	"runtime"
 	"strings"
 	"time"
@@ -201,12 +203,17 @@ func queryBalance(client jsonrpc.RPCClient, addr, token string) {
 
 func cConnHandler(c net.Conn, client jsonrpc.RPCClient, interval *uint) {
 
-	var genesisAllocTxCount = int64(409252)
+	// var genesisAllocTxCount = int64(102365)
+	var genesisAllocTxCount = int64(454865)
 	totalTxCountMod := int64(0)
 	NewTotalTxCountMod := int64(0)
-	EpochInterval := int64(12000)
-	EPOCH := int64(0)
-	EpochMAX := int64(0)
+	EpochInterval := int64(61000)
+	EPOCH := int64(1)
+	EpochMAX := int64(40)
+	Checkpoint := 0
+	fileName := "TPS_mig_4_2_May3.csv"
+
+	var txCountStringToCSV [][]string
 
 	intv := time.Duration(*interval)
 	ticker := time.NewTicker(intv * time.Second)
@@ -231,9 +238,20 @@ func cConnHandler(c net.Conn, client jsonrpc.RPCClient, interval *uint) {
 			pendingTxCount, _ := res["pendingTxCount"].(json.Number).Int64()
 			confirmedTxCount, _ := res["totalTxCount"].(json.Number).Int64()
 
+			txCount, _ := res["txCount60s"].(json.Number).Int64()
+			blockCount60s, _ := res["blockCount60s"].(json.Number).Float64()
+
+			var txCountString []string
+			if txCount != 0 {
+				txCountString = append(txCountString, fmt.Sprintf("%2.2f", float64(txCount/60)))
+				txCountString = append(txCountString, fmt.Sprintf("%2.2f", blockCount60s/60))
+
+				txCountStringToCSV = append(txCountStringToCSV, txCountString)
+			}
+
 			NewTotalTxCountMod = (pendingTxCount + confirmedTxCount - genesisAllocTxCount) % EpochInterval
 
-			if pendingTxCount+confirmedTxCount > genesisAllocTxCount && NewTotalTxCountMod < totalTxCountMod && EPOCH <= EpochMAX {
+			if pendingTxCount+confirmedTxCount > genesisAllocTxCount && NewTotalTxCountMod < totalTxCountMod && EPOCH < EpochMAX && Checkpoint > 36 {
 				EPOCH++
 				EPOCHstring := fmt.Sprintf("%d", EPOCH)
 				//去除输入两端空格
@@ -251,9 +269,15 @@ func cConnHandler(c net.Conn, client jsonrpc.RPCClient, interval *uint) {
 				//回显服务器端回传的信息
 				fmt.Print("服务器端回复" + string(buf[0:cnt]))
 
+				Checkpoint = 0
+
 			}
 
 			totalTxCountMod = NewTotalTxCountMod
+
+			Checkpoint++
+
+			WriteTPSToCSV(txCountStringToCSV, fileName)
 
 		}
 
@@ -261,7 +285,7 @@ func cConnHandler(c net.Conn, client jsonrpc.RPCClient, interval *uint) {
 }
 
 func ClientSocket(client jsonrpc.RPCClient, interval *uint) {
-	conn, err := net.Dial("tcp", "52.8.55.161:8087")
+	conn, err := net.Dial("tcp", "54.193.209.253:8087")
 	if err != nil {
 		fmt.Println("客户端建立连接失败")
 		return
@@ -270,10 +294,25 @@ func ClientSocket(client jsonrpc.RPCClient, interval *uint) {
 	cConnHandler(conn, client, interval)
 }
 
+// WriteTPSToCSV 讲TPS信息写入CSV
+func WriteTPSToCSV(TPS_tocsv [][]string, fileName string) {
+	// 写入csv文件
+	f, err := os.Create(fileName) //创建文件
+	if err != nil {
+		panic(err)
+	}
+	defer f.Close()
+
+	w := csv.NewWriter(f) //创建一个新的写入文件流
+	// WriteAll方法使用Write方法向w写入多条记录，并在最后调用Flush方法清空缓存。
+	w.WriteAll(TPS_tocsv)
+	w.Flush()
+}
+
 func main() {
 
 	ip := flag.String("ip", "localhost", "Cluster IP")
-	interval := flag.Uint("i", 10, "Query interval in second")
+	interval := flag.Uint("i", 5, "Query interval in second")
 	address := flag.String("a", "", "Query account balance if a QKC address is provided")
 	token := flag.String("t", "QKC", "Query account balance for a specific token")
 	flag.Parse()

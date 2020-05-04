@@ -158,23 +158,6 @@ func (s *SlaveBackend) AddTx(tx *types.Transaction) (err error) {
 	fromShard := tx.EvmTx.FromFullShardKey()
 	toShard := tx.EvmTx.ToFullShardKey()
 
-	if shard, ok := s.shards[tx.EvmTx.FromFullShardId()]; ok {
-
-		if sender != *tx.EvmTx.TxData.Recipient {
-
-			s.MigrationEnded(true, fromShard)
-
-		}
-
-		shard.MinorBlockChain.AddTx(tx)
-		// TODO: change back to `return shard.MinorBlockChain.AddTx(tx)`
-		if sender == *tx.EvmTx.TxData.Recipient {
-			println("Added account migration tx")
-		}
-	} else {
-		return ErrMsg("AddTx")
-	}
-
 	if sender == *tx.EvmTx.TxData.Recipient {
 
 		fmt.Println("Migrate", sender, "from shard", fromShard, "to", toShard)
@@ -184,6 +167,23 @@ func (s *SlaveBackend) AddTx(tx *types.Transaction) (err error) {
 		} else {
 			println("Account migrated")
 		}
+	}
+
+	if shard, ok := s.shards[tx.EvmTx.FromFullShardId()]; ok {
+
+		shard.MinorBlockChain.AddTx(tx)
+		// TODO: change back to `return shard.MinorBlockChain.AddTx(tx)`
+		if sender == *tx.EvmTx.TxData.Recipient {
+			println("Added account migration tx")
+		}
+
+		if sender != *tx.EvmTx.TxData.Recipient {
+
+			s.MigrationEnded(true, fromShard)
+
+		}
+	} else {
+		return ErrMsg("AddTx")
 	}
 
 	// // TODO: REMOVE THE TEST CODE BELOW

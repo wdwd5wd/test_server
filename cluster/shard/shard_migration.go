@@ -20,7 +20,7 @@ func (s *ShardBackend) PopAccountTranscations(account common.Address) types.Tran
 	// }
 	//s.mu.Unlock()
 
-	txs := s.MinorBlockChain.PopAccountTxs(account)
+	txs := s.MinorBlockChain.PopAccountTranscations(account)
 	log.Debug("Transcations poped from pool", "size", len(txs))
 
 	//s.mu.Lock()
