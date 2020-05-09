@@ -20,7 +20,7 @@ func (s *SlaveBackend) MigrateAccountToOtherShard(account common.Address,
 		return errors.New("the shard does not exist")
 	}
 
-	fromShard.RestartMining(false)
+	// fromShard.RestartMining(false)
 
 	txs := fromShard.PopAccountTranscations(account)
 

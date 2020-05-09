@@ -204,14 +204,14 @@ func queryBalance(client jsonrpc.RPCClient, addr, token string) {
 func cConnHandler(c net.Conn, client jsonrpc.RPCClient, interval *uint) {
 
 	// var genesisAllocTxCount = int64(102365)
-	var genesisAllocTxCount = int64(454865)
+	var genesisAllocTxCount = int64(66371700)
 	totalTxCountMod := int64(0)
 	NewTotalTxCountMod := int64(0)
-	EpochInterval := int64(61000)
+	EpochInterval := int64(240000)
 	EPOCH := int64(1)
-	EpochMAX := int64(40)
+	EpochMAX := int64(20)
 	Checkpoint := 0
-	fileName := "TPS_mig_4_2_May3.csv"
+	fileName := "TPS_nomig_8_6_May6.csv"
 
 	var txCountStringToCSV [][]string
 

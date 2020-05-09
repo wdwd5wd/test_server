@@ -177,11 +177,12 @@ func (s *SlaveBackend) AddTx(tx *types.Transaction) (err error) {
 			println("Added account migration tx")
 		}
 
-		if sender != *tx.EvmTx.TxData.Recipient {
+		// if sender != *tx.EvmTx.TxData.Recipient {
 
-			s.MigrationEnded(true, fromShard)
+		// 	s.MigrationEnded(true, fromShard)
 
-		}
+		// }
+
 	} else {
 		return ErrMsg("AddTx")
 	}

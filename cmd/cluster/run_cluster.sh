@@ -1,6 +1,6 @@
 #!/bin/bash
 
-configPath='/home/ubuntu/go/src/github.com/QuarkChain/goquarkchain/tests/cluster_config_local.json'
+configPath='/home/ubuntu/go/src/github.com/QuarkChain/goquarkchain/tests/cluster_config_8.json'
 
 # /home/ubuntu/go/src/github.com/QuarkChain/goquarkchain/tests/cluster_config_local.json
 
@@ -36,4 +36,3 @@ eval $cmd
 # start mining
 
 # curl -X POST -H 'content-type: application/json' --data '{"jsonrpc":"2.0","method":"setMining","params":[true],"id":0}' http://127.0.0.1:38491
-
