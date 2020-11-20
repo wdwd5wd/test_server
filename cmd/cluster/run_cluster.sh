@@ -1,6 +1,6 @@
 #!/bin/bash
 
-configPath='/home/ubuntu/go/src/github.com/QuarkChain/goquarkchain/tests/cluster_config_8.json'
+configPath='/home/ubuntu/go/src/github.com/QuarkChain/goquarkchain/tests/cluster_config_4.json'
 
 # /home/ubuntu/go/src/github.com/QuarkChain/goquarkchain/tests/cluster_config_local.json
 

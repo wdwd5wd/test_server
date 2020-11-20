@@ -204,14 +204,15 @@ func queryBalance(client jsonrpc.RPCClient, addr, token string) {
 func cConnHandler(c net.Conn, client jsonrpc.RPCClient, interval *uint) {
 
 	// var genesisAllocTxCount = int64(102365)
-	var genesisAllocTxCount = int64(66371700)
+	var genesisAllocTxCount = int64(236440)
 	totalTxCountMod := int64(0)
 	NewTotalTxCountMod := int64(0)
-	EpochInterval := int64(240000)
+	EpochInterval := int64(60000)
 	EPOCH := int64(1)
-	EpochMAX := int64(20)
+	EpochMAX := int64(2)
 	Checkpoint := 0
-	fileName := "TPS_nomig_8_6_May6.csv"
+	fileName := "TPS_Mig_4_small_100load.csv"
+	// fileName := "TPS_bandwidthtest_May25.csv"
 
 	var txCountStringToCSV [][]string
 
@@ -285,7 +286,7 @@ func cConnHandler(c net.Conn, client jsonrpc.RPCClient, interval *uint) {
 }
 
 func ClientSocket(client jsonrpc.RPCClient, interval *uint) {
-	conn, err := net.Dial("tcp", "54.193.209.253:8087")
+	conn, err := net.Dial("tcp", "52.53.134.142:8087")
 	if err != nil {
 		fmt.Println("客户端建立连接失败")
 		return
